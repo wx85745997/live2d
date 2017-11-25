@@ -286,7 +286,9 @@ LAppModel.prototype.startMotion = function (name, no, priority) {
             console.error("Failed to motion.");
         return;
     }
+
     document.getElementById('loading').style.display = 'none'
+
     if (priority == LAppDefine.PRIORITY_FORCE) {
         this.mainMotionManager.setReservePriority(priority);
     }
