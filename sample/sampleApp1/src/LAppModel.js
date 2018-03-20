@@ -287,7 +287,9 @@ LAppModel.prototype.startMotion = function (name, no, priority) {
         return;
     }
 
-    document.getElementById('loading').style.display = 'none'
+    //MyLoading
+    document.querySelector('#loading').style.display = 'none'
+    document.querySelector('#dialog').style.display = 'block'
 
     if (priority == LAppDefine.PRIORITY_FORCE) {
         this.mainMotionManager.setReservePriority(priority);

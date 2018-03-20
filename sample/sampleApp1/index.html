@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Live2D SampleApp1</title>
+    <title>Live2D</title>
     </meta>
 
     <meta name="viewport" content="width=device-width, initial-scale=0.5, minimum-scale=1.0, maximum-scale=4.0">
@@ -22,14 +22,12 @@
         }
 
         #glcanvas {
-
             position: absolute;
-            top: 50%;
-            left: 50%;
+            top: 70%;
+            left: 80%;
             transform: translate(-50%, -50%);
             background-size: 150%;
             background-position: 50% 50%;
-            background-image: url(assets/image/back_class_normal.png);
         }
 
         button {
@@ -102,6 +100,52 @@
             opacity: .3;
         }
 
+        #dialog {
+            width: 300px;
+            border: 1px solid black;
+            position: absolute;
+            margin: auto;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            max-width: 50vw;
+            max-height: 50vh;
+            pointer-events: auto;
+            overflow: auto;
+            border-radius: 10px;
+            padding: 10px;
+        }
+        #answer{
+            pointer-events: auto
+         }
+
+        #answer ul,#answer li{
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        #answer li{
+
+        }
+        #answer li img{
+            width: 100%;
+            float: left;
+        }
+
+
+        .clearfix:after{
+            content: " ";
+            display: block;
+            clear: both;
+            height: 0;
+        }
+        .clearfix{
+            zoom: 1;
+        }
+
+
         .spinner {
             width: 50px;
             height: 60px;
@@ -164,6 +208,20 @@
                 -webkit-transform: scaleY(1.0);
             }
         }
+
+           #dialog input{
+            background: #ccc;
+        }
+
+        #dialog .button{
+            margin-left: 10px;
+            padding: 3px;
+            border: 1px solid #0064b6;
+            border-radius: 2px;
+            background: #2277da;
+        }
+
+      
     </style>
 
 </head>
@@ -180,17 +238,21 @@
     </div>
 </div>
 
-<p>
+<p style="display:none">
     <button id="btnChange" class="active">Change Model</button>
 </p>
 
-<div>
-    <canvas id="glcanvas" width="680" height="940"
-            style="border:dashed 1px #CCC">
+<div id="wrapper" style="width: 100vw;height: 100vh;">
+    <canvas id="glcanvas" width="300" height="300">
     </canvas>
 </div>
 
 <div id="myconsole" style="color:#000">---- Log ----</div>
+
+<div id="dialog">
+    <input style="pointer-events:auto" type="text"><span class="button" style="pointer-events:auto">发送</span>
+    <div id="answer"></div>
+</div>
 
 <!-- Live2D Library -->
 <script src="./lib/live2d.min.js"></script>
@@ -206,6 +268,81 @@
 <script src="./src/LAppModel.js"></script>
 <script src="./src/LAppLive2DManager.js"></script>
 <script src="./src/SampleApp1.js"></script>
+<script>
+    var OInput = document.querySelector('input')
+    var OSpan = document.querySelector('span')
+    var userid = Date.parse(new Date());
+    var OAnswer = document.querySelector('#answer')
 
+    function getParams(data) {
+        var arr = [];
+        for (var param in data) {
+            arr.push(encodeURIComponent(param) + '=' + encodeURIComponent(data[param]));
+        }
+        console.log(arr);
+        arr.push(('randomNumber=' + Math.random()).replace('.'));
+        console.log(arr);
+        return arr.join('&');
+    }
+
+    OSpan.addEventListener('click', function () {
+
+        var info = OInput.value
+        var postData = {
+            key: '1df4645203014bdb98cca4cf909b3890',
+            userid: userid,
+            info: info
+        }
+        var params = getParams(postData);
+
+
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "http://www.tuling123.com/openapi/api", true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.send(params);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState == 4) {
+                if (xhr.status == 200) {
+                    if (JSON.parse(xhr.responseText).code == 40002) {
+                        //返回内容未空
+                        OAnswer.innerHTML = '无可奉告'
+                    } else if (JSON.parse(xhr.responseText).code == 40004) {
+                        //api调用次数太多了
+                        OAnswer.innerHTML = '人家今天累了,不想理你了'
+                    } else if (JSON.parse(xhr.responseText).code == 100000) {
+                        //文本类
+                        OAnswer.innerHTML = JSON.parse(xhr.responseText).text
+                    }else if(JSON.parse(xhr.responseText).code == 200000){
+                        //链接类
+                        OAnswer.innerHTML = `<p>${JSON.parse(xhr.responseText).text}</p><p><a target="_blank" href="${JSON.parse(xhr.responseText).url}">${info}</a></p>`
+                    }else if(JSON.parse(xhr.responseText).code == 302000){
+                        //新闻类
+                        let lists=JSON.parse(xhr.responseText).list
+                        let ulInnerHtml='<ul>'
+                        lists.forEach(function (item,index) {
+                            ulInnerHtml+=`<li class="clearfix"><img src="${item.icon}" alt=""><a target="_blank" href="${item.detailurl}">${item.article}</a></li>`
+                        })
+                        ulInnerHtml+=`</ul>`
+                        OAnswer.innerHTML = JSON.parse(xhr.responseText).text+ulInnerHtml
+                    }else if(JSON.parse(xhr.responseText).code == 308000){
+                        //菜谱类
+                        let lists=JSON.parse(xhr.responseText).list
+                        let ulInnerHtml='<ul>'
+                        lists.forEach(function (item,index) {
+                            ulInnerHtml+=`<li class="clearfix"><img src="${item.icon}" alt=""><a target="_blank" href="${item.detailurl}">${item.name}</a></li>`
+                        })
+                        ulInnerHtml+=`</ul>`
+                        OAnswer.innerHTML = JSON.parse(xhr.responseText).text+ulInnerHtml
+                    }
+
+
+                    //alert(xhr.responseText);
+                }
+            }
+        }
+    })
+
+
+</script>
 </body>
 </html>

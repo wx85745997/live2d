@@ -44,26 +44,44 @@ function sampleApp1() {
 function initL2dCanvas(canvasId) {
 
     this.canvas = document.getElementById(canvasId);
+    this.wrapper = document.getElementById('wrapper');
+    console.log(wrapper)
 
 
-    if (this.canvas.addEventListener) {
-        this.canvas.addEventListener("mousewheel", mouseEvent, false);
-        this.canvas.addEventListener("click", mouseEvent, false);
+    if (this.wrapper.addEventListener) {
+        //this.wrapper.addEventListener("mousewheel", mouseEvent, false);
+        this.wrapper.addEventListener("click", mouseEvent, false);
 
-        this.canvas.addEventListener("mousedown", mouseEvent, false);
-        this.canvas.addEventListener("mousemove", mouseEvent, false);
+        this.wrapper.addEventListener("mousedown", mouseEvent, false);
+        this.wrapper.addEventListener("mousemove", mouseEvent, false);
 
-        this.canvas.addEventListener("mouseup", mouseEvent, false);
-        this.canvas.addEventListener("mouseout", mouseEvent, false);
-        this.canvas.addEventListener("contextmenu", mouseEvent, false);
-
-
-        this.canvas.addEventListener("touchstart", touchEvent, false);
-        this.canvas.addEventListener("touchend", touchEvent, false);
-        this.canvas.addEventListener("touchmove", touchEvent, false);
+        this.wrapper.addEventListener("mouseup", mouseEvent, false);
+        this.wrapper.addEventListener("mouseout", mouseEvent, false);
+        this.wrapper.addEventListener("contextmenu", mouseEvent, false);
 
 
+        this.wrapper.addEventListener("touchstart", touchEvent, false);
+        this.wrapper.addEventListener("touchend", touchEvent, false);
+        this.wrapper.addEventListener("touchmove", touchEvent, false);
     }
+
+
+    /*    if (this.canvas.addEventListener) {
+     this.canvas.addEventListener("mousewheel", mouseEvent, false);
+     this.canvas.addEventListener("click", mouseEvent, false);
+
+     this.canvas.addEventListener("mousedown", mouseEvent, false);
+     this.canvas.addEventListener("mousemove", mouseEvent, false);
+
+     this.canvas.addEventListener("mouseup", mouseEvent, false);
+     this.canvas.addEventListener("mouseout", mouseEvent, false);
+     this.canvas.addEventListener("contextmenu", mouseEvent, false);
+
+
+     this.canvas.addEventListener("touchstart", touchEvent, false);
+     this.canvas.addEventListener("touchend", touchEvent, false);
+     this.canvas.addEventListener("touchmove", touchEvent, false);
+     }*/
 
     btnChangeModel = document.getElementById("btnChange");
     btnChangeModel.addEventListener("click", function (e) {
@@ -74,8 +92,13 @@ function initL2dCanvas(canvasId) {
 
 function init() {
 
-    var width = this.canvas.width;
-    var height = this.canvas.height;
+    //var width = this.canvas.width;
+    //var height = this.canvas.height;
+    document.querySelector('#glcanvas').width= window.innerWidth;
+    document.querySelector('#glcanvas').height=window.innerHeight;
+
+    var width=window.innerWidth;
+    var height=window.innerHeight;
 
     this.dragMgr = new L2DTargetPoint();
 
@@ -123,6 +146,8 @@ function init() {
     changeModel();
 
     startDraw();
+    modelScaling(.5)
+
 }
 
 
@@ -220,6 +245,7 @@ function modelScaling(scale) {
 
 
 function modelTurnHead(event) {
+
     thisRef.drag = true;
 
 
@@ -233,11 +259,9 @@ function modelTurnHead(event) {
     if (LAppDefine.DEBUG_MOUSE_LOG)
         l2dLog("onMouseDown device( x:" + event.clientX + " y:" + event.clientY + " ) view( x:" + vx + " y:" + vy + ")");
 
-    thisRef.lastMouseX = sx;
-    thisRef.lastMouseY = sy;
 
-    thisRef.dragMgr.setPoint(vx, vy);
 
+    thisRef.dragMgr.setPoint(sx, sy);
     if (event.type === 'mousemove') {
         return
     }
@@ -253,6 +277,8 @@ function followPointer(event) {
     var sy = transformScreenY(event.clientY - rect.top);
     var vx = transformViewX(event.clientX - rect.left);
     var vy = transformViewY(event.clientY - rect.top);
+    console.log(event.clientX)
+    console.log(rect.left)
 
     if (LAppDefine.DEBUG_MOUSE_LOG)
         l2dLog("onMouseMove device( x:" + event.clientX + " y:" + event.clientY + " ) view( x:" + vx + " y:" + vy + ")");
@@ -312,7 +338,7 @@ function mouseEvent(e) {
         lookFront();
 
     } else if (e.type == "contextmenu") {
-
+        return;
         changeModel();
     }
 
